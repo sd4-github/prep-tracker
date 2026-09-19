@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>{{ selected }} · DSA Prep Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app">
+
+    <!-- Topics -->
+    <aside class="sidebar">
+        <a class="brand" href="/">
+            <span class="brand-name">DSA Prep</span>
+            <span class="brand-meta">{{ "{:,}".format(total_problems) }} problems</span>
+        </a>
+        <nav class="topics" aria-label="Topics">
+            {% for t in topics %}
+            <a href="/?pattern={{ t.name | urlencode }}"
+               class="topic{% if t.name == selected %} is-active{% endif %}"
+               {% if t.name == selected %}aria-current="page"{% endif %}>
+                <span class="topic-name">{{ t.name }}</span>
+                <span class="topic-count">{{ t.total }}</span>
+            </a>
+            {% endfor %}
+        </nav>
+    </aside>
+
+    <main class="main">
+
+        <header class="page-head">
+            <h1>{{ selected }}</h1>
+            <p class="page-count">
+                {% if shown != topic_total %}{{ shown }} of {{ topic_total }} problems{% else %}{{ topic_total }} problems{% endif %}
+            </p>
+        </header>
+
+        <!-- Sub-topics -->
+        {% if subs %}
+        <nav class="chips" aria-label="Sub-topics">
+            <a class="chip{% if active_sub == 'all' %} is-active{% endif %}" href="{{ qs(sub=None) }}">
+                All <span>{{ subs | sum(attribute='count') }}</span>
+            </a>
+            {% for s in subs %}
+            <a class="chip{% if s.name == active_sub %} is-active{% endif %}" href="{{ qs(sub=s.name) }}">
+                {{ s.name }} <span>{{ s.count }}</span>
+            </a>
+            {% endfor %}
+        </nav>
+        {% endif %}
+
+        <!-- Filters -->
+        <form class="filters" method="get" action="/">
+            <input type="hidden" name="pattern" value="{{ selected }}">
+            {% if active_sub != 'all' %}<input type="hidden" name="sub" value="{{ active_sub }}">{% endif %}
+
+            <input class="search" type="search" name="search" value="{{ search }}"
+                   placeholder="Search title, number or company" aria-label="Search">
+
+            <select name="difficulty" aria-label="Difficulty" onchange="this.form.submit()">
+                <option value="all">Any difficulty</option>
+                {% for d in ['Easy', 'Medium', 'Hard'] %}
+                <option value="{{ d }}" {% if difficulty == d %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="recency" aria-label="Recency" onchange="this.form.submit()">
+                <option value="all">Any time</option>
+                <option value="30 days"  {% if recency == '30 days'  %}selected{% endif %}>Last 30 days</option>
+                <option value="3 months" {% if recency == '3 months' %}selected{% endif %}>Last 3 months</option>
+                <option value="6 months" {% if recency == '6 months' %}selected{% endif %}>Last 6 months</option>
+                <option value="older"    {% if recency == 'older'    %}selected{% endif %}>Older than 6 months</option>
+            </select>
+
+            <select name="company" aria-label="Company" onchange="this.form.submit()">
+                <option value="all">Any company</option>
+                {% for c in companies %}
+                <option value="{{ c }}" {% if company == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+
+            {% if has_filters %}
+            <a class="clear" href="{{ qs(search=None, difficulty=None, recency=None, company=None) }}">Clear</a>
+            {% endif %}
+        </form>
+
+        <!-- Problems -->
+        {% if problems %}
+        <div class="table-wrap">
+            <table class="problems">
+                <thead>
+                    <tr>
+                        <th class="c-id">#</th>
+                        <th class="c-title">Problem</th>
+                        <th class="c-diff">Difficulty</th>
+                        <th class="c-acc">Acceptance</th>
+                        <th class="c-rec">Last asked</th>
+                        <th class="c-co">Companies</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in problems %}
+                    <tr>
+                        <td class="c-id">{{ p.id }}</td>
+                        <td class="c-title">
+                            <a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.title }}</a>
+                        </td>
+                        <td class="c-diff">
+                            <span class="diff diff-{{ p.difficulty | lower }}">{{ p.difficulty }}</span>
+                        </td>
+                        <td class="c-acc">{{ p.acceptance }}</td>
+                        <td class="c-rec">
+                            {% if p.recency == '30 days' %}<span class="rec rec-hot">30 days</span>
+                            {% elif p.recency == '3 months' %}<span class="rec rec-warm">3 months</span>
+                            {% elif p.recency == '6 months' %}<span class="rec rec-mild">6 months</span>
+                            {% else %}<span class="rec rec-old">Older</span>{% endif %}
+                        </td>
+                        <td class="c-co">
+                            <div class="cos">
+                                {% for c in p.companies[:4] %}
+                                <span class="co {% if c.recency == '30 days' %}co-hot{% elif c.recency == '3 months' %}co-warm{% endif %}"
+                                      title="{{ c.name }}: {{ c.recency }}">{{ c.name }}</span>
+                                {% endfor %}
+                                {% if p.companies | length > 4 %}
+                                <span class="co co-more"
+                                      title="{% for c in p.companies[4:] %}{{ c.name }} ({{ c.recency }}){% if not loop.last %}, {% endif %}{% endfor %}">+{{ p.companies | length - 4 }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty">
+            <p>No problems match these filters.</p>
+            <a class="clear" href="{{ qs(search=None, difficulty=None, recency=None, company=None, sub=None) }}">Clear filters</a>
+        </div>
+        {% endif %}
+
+    </main>
+</div>
+<script>
+    // On small screens the topic strip scrolls sideways; keep the current topic visible.
+    document.querySelector('.topic.is-active')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+</script>
+</body>
+</html>
