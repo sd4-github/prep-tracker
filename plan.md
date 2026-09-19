@@ -1,7 +1,7 @@
 # DSA Prep Tracker — Project Plan
 
 ## Project Overview
-A simple Python web app that displays coding problems categorized by topics/patterns (NeetCode-style), with company tags from the [companywise-interview-questions](https://github.com/sd4-github/leetcode-companywise-interview-questions) repo.
+A simple Python web app that displays coding problems categorized by topics/patterns (NeetCode-style), with company tags from the companywise-interview-questions repo.
 
 ---
 
