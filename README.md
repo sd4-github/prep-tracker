@@ -85,6 +85,8 @@ The app is read-only and has no database, so any free Python host works. **Rende
 
 ### Render (recommended)
 
+Live Demo: https://prep-tracker-upx3.onrender.com
+
 1. Push the project to a GitHub repo. Make sure `processed_data_fixed.json` is committed.
 2. On [render.com](https://render.com), choose **New → Web Service** and connect the repo.
 3. Use these settings:
