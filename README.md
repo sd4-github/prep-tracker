@@ -118,5 +118,5 @@ In production gunicorn runs the app, so these only affect `python app.py`.
 
 ## Data
 
-Company and recency data comes from a community-maintained collection of company-wise interview questions. Problem titles and links point to LeetCode, and no problem statements are stored.
+Company and recency data comes from the community-maintained [leetcode-companywise-interview-questions](https://github.com/snehasishroy/leetcode-companywise-interview-questions) repository. Problem titles and links point to LeetCode, and no problem statements are stored.
 
