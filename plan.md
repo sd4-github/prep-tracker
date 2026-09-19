@@ -6,7 +6,7 @@ A simple Python web app that displays coding problems categorized by topics/patt
 ---
 
 ## Data Source
-- **Repo:** `/home/soumikd4/Desktop/leetcode-companywise-interview-questions/`
+- **Repo:** `https://github.com/snehasishroy/leetcode-companywise-interview-questions`
 - **Structure:** 662 company folders → each has `all.csv`, `thirty-days.csv`, `six-months.csv`, `three-months.csv`, `more-than-six-months.csv`
 - **CSV Headers:** `ID, URL, Title, Difficulty, Acceptance %, Frequency %`
 - **No Topic/Pattern column** in raw data — must be mapped manually.
